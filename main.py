@@ -11,10 +11,10 @@ pygame.display.set_caption("Snake")
 # Objects
 class Snake():
     def __init__(self, x, y):
-        self.x = 50 
-        self.y = 50
         self.width = 30
         self.height = 30
+        self.x = 50-0.5*self.width 
+        self.y = 50-0.5*self.height
         self.length = 1
         self.dir = 'down'
 
@@ -35,11 +35,11 @@ class Snake():
         pygame.draw.rect(screen, (255,0,0), (self.x, self.y, self.width, self.height))
 
 class Food():
-    def __init__(self, x, y):
-        self.x = random.randint(0, WIN_W)
-        self.y = random.randint(0, WIN_H)
+    def __init__(self):
         self.width = 30
         self.height = 30
+        self.x = random.randint(0, WIN_W-0.5*self.width)
+        self.y = random.randint(0, WIN_H-0.5*self.height)
     
     def spawn(self, screen):
         pygame.draw.rect(screen, (0,255,0), (self.x, self.y, self.width, self.height))
@@ -47,12 +47,13 @@ class Food():
     def eaten(self):
         self.x = random.randint(0, WIN_W)
         self.y = random.randint(0, WIN_H)
-        
+
         self.spawn(SCREEN)
     
 # Main Loop
 def main():
     snake = Snake(WIN_W/2, WIN_H/2)
+    food = Food()
 
     running = True
     while running:
@@ -75,6 +76,7 @@ def main():
                     snake.dir = 'up'
         
         snake.draw(SCREEN)
+        food.spawn(SCREEN)
         snake.move()
 
         # End scenarios - (1) Hit sides OR (2) hit self == pause snake, pause screen updates, display 'End' message,
