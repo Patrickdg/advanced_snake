@@ -1,6 +1,17 @@
+# LIBRARIES 
 import pygame
-import random 
+import random
+import math 
 
+ 
+""" TO-DO 
+- death scenarios (2): edge boundaries + eat self
+- GUI
+- Score system & display
+
+"""
+
+# PARAMETERS
 pygame.init()
 
 WIN_W = 750
@@ -8,13 +19,16 @@ WIN_H = 750
 SCREEN = pygame.display.set_mode([WIN_W, WIN_H])
 pygame.display.set_caption("Snake")
 
-# Objects
+# OBJECTS
+def round_nearest(n, nearest):
+    return int(nearest * round(float(n)/nearest))
+
 class Snake():
     def __init__(self, x, y):
         self.width = 30
         self.height = 30
-        self.x = 50-0.5*self.width 
-        self.y = 50-0.5*self.height
+        self.x = round_nearest(WIN_W/2, self.width)
+        self.y = round_nearest(WIN_H/2, self.height)
         self.length = 1
         self.dir = 'down'
         self.tail = []
@@ -32,8 +46,8 @@ class Snake():
     
     # move tail
     def move_tail(self):
-        if self.tail:
-            self.tail.insert(0, [self.x, self.y])
+        self.tail.insert(0, [self.x, self.y])
+        self.tail.pop()
 
     def eat(self):
         self.length +=1
@@ -41,26 +55,34 @@ class Snake():
 
     def draw(self, screen):
             pygame.draw.rect(screen, (255,0,0), (self.x, self.y, self.width, self.height))
-            self.move_tail()
+            if self.tail:
+                self.move_tail()
             print(self.tail)
+            for tail in list(self.tail):
+                pygame.draw.rect(screen, (255,0,0), (tail[0], tail[1], self.width, self.height))
+
+def round_nearest(n, nearest):
+    return int(nearest * round(float(n)/nearest))
 
 class Food():
     def __init__(self):
         self.width = 30
         self.height = 30
-        self.x = random.randint(0, WIN_W-0.5*self.width)
-        self.y = random.randint(0, WIN_H-0.5*self.height)
+        self.x = round_nearest(random.randint(0, WIN_W), self.width)
+        self.y = round_nearest(random.randint(0, WIN_H), self.height)
     
     def spawn(self, screen):
-        pygame.draw.rect(screen, (0,255,0), (self.x, self.y, self.width, self.height))
+        pygame.draw.rect(screen, (0,255,0), (round_nearest(self.x, self.width),
+                                             round_nearest(self.y, self.height), 
+                                             self.width, self.height))
 
     def eaten(self):
-        self.x = random.randint(0, WIN_W-0.5*self.width)
-        self.y = random.randint(0, WIN_H-0.5*self.height)
+        self.x = random.randint(0, WIN_W)
+        self.y = random.randint(0, WIN_H)
 
         self.spawn(SCREEN)
     
-# Main Loop
+# MAIN LOOP #
 def main():
     snake = Snake(WIN_W/2, WIN_H/2)
     food = Food()
