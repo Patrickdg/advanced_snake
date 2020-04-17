@@ -3,8 +3,8 @@ import random
 
 pygame.init()
 
-WIN_W = 500
-WIN_H = 500
+WIN_W = 750
+WIN_H = 750
 SCREEN = pygame.display.set_mode([WIN_W, WIN_H])
 pygame.display.set_caption("Snake")
 
@@ -17,7 +17,9 @@ class Snake():
         self.y = 50-0.5*self.height
         self.length = 1
         self.dir = 'down'
+        self.tail = []
 
+    # move head
     def move(self):
         if self.dir == 'left':
             self.x += -self.width
@@ -28,11 +30,19 @@ class Snake():
         elif self.dir == 'down':
             self.y += self.height
     
+    # move tail
+    def move_tail(self):
+        if self.tail:
+            self.tail.insert(0, [self.x, self.y])
+
     def eat(self):
-        self.length +=1 
+        self.length +=1
+        self.tail.insert(-1, [self.x, self.y])
 
     def draw(self, screen):
-        pygame.draw.rect(screen, (255,0,0), (self.x, self.y, self.width, self.height))
+            pygame.draw.rect(screen, (255,0,0), (self.x, self.y, self.width, self.height))
+            self.move_tail()
+            print(self.tail)
 
 class Food():
     def __init__(self):
@@ -64,7 +74,7 @@ def main():
         if (abs(snake.x - food.x) < threshold) & (abs(snake.y - food.y) < threshold): 
             food.eaten()
             snake.eat()
-            print("EATEN")
+            print(snake.tail)
 
         pygame.time.delay(100)
         for event in pygame.event.get():
@@ -73,13 +83,13 @@ def main():
 
         # Key input
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT and snake.dir != 'right':
                     snake.dir = 'left'
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_RIGHT and snake.dir != 'left':
                     snake.dir = 'right'
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_DOWN and snake.dir != 'up':
                     snake.dir = 'down'
-                elif event.key == pygame.K_UP:
+                elif event.key == pygame.K_UP and snake.dir != 'down':
                     snake.dir = 'up'
         
         snake.draw(SCREEN)
