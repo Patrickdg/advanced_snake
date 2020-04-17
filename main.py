@@ -1,13 +1,12 @@
 # LIBRARIES 
 import pygame
+import thorpy
 import random
 import math 
 
  
 """ TO-DO 
-- death scenarios (2): pause screen, show message & score
 - GUI
-- Score system & display
 
 """
 
@@ -55,7 +54,7 @@ class Snake():
 
     def draw(self, screen):
             pygame.draw.rect(screen, (255,0,0), (self.x, self.y, self.width, self.height))
-            if self.tail:
+            if self.length > 1:
                 self.move_tail()
             print(self.tail)
             for tail in list(self.tail):
@@ -77,26 +76,24 @@ class Food():
                                              self.width, self.height))
 
     def eaten(self):
-        self.x = random.randint(0, WIN_W)
-        self.y = random.randint(0, WIN_H)
+        self.x = round_nearest(random.randint(0, WIN_W), self.width)
+        self.y = round_nearest(random.randint(0, WIN_H), self.height)
 
         self.spawn(SCREEN)
     
 # MAIN LOOP #
 def main():
+    # Declarations
     snake = Snake(WIN_W/2, WIN_H/2)
     food = Food()
-    threshold = 0.75*snake.width
 
     running = True
+    alive = True
     while running:
         SCREEN.fill((0,0,0))
 
-        # Check if food eaten
-        if (abs(snake.x - food.x) < threshold) & (abs(snake.y - food.y) < threshold): 
-            food.eaten()
-            snake.eat()
-            print(snake.tail)
+        font = pygame.font.Font(None, 74)
+        score = font.render(f"Score: {snake.length-1}", 1, (255,255,255))
 
         pygame.time.delay(100)
         for event in pygame.event.get():
@@ -114,17 +111,27 @@ def main():
                 elif event.key == pygame.K_UP and snake.dir != 'down':
                     snake.dir = 'up'
         
-        # Draw snake & food
-        snake.draw(SCREEN)
-        food.spawn(SCREEN)
-        snake.move()
-
+        # Draw score, snake & food
+        if alive: 
+            # Check if food eaten
+            SCREEN.blit(score, (250,10))
+            food.spawn(SCREEN)
+            if [food.x, food.y] == [snake.x, snake.y]: 
+                food.eaten()
+                snake.eat()
+                print(snake.tail)
+            snake.draw(SCREEN)
+            snake.move()
+        else: 
+            SCREEN.blit(score, (250,10))
+            snake.draw(SCREEN)
+            
         # End scenarios - (1) Hit sides OR (2) hit self == pause snake, pause screen updates, display 'End' message,
         ## (1) Boundaries
         out_of_bounds = (snake.x < 0) or (snake.x > WIN_W) or (snake.y < 0) or (snake.y > WIN_H)
         ## (2) Check if crashed into self
         if ([snake.x, snake.y] in snake.tail) or (out_of_bounds): 
-            running = False
+            alive = False
         
         pygame.display.update()
     
