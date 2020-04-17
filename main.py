@@ -28,8 +28,8 @@ class Snake():
         elif self.dir == 'down':
             self.y += self.height
     
-    # def eat(self, tail): eat method will extend snake's body at the tail (last position in coordinate list)
-    ## Also add to self.length
+    def eat(self):
+        self.length +=1 
 
     def draw(self, screen):
         pygame.draw.rect(screen, (255,0,0), (self.x, self.y, self.width, self.height))
@@ -45,8 +45,8 @@ class Food():
         pygame.draw.rect(screen, (0,255,0), (self.x, self.y, self.width, self.height))
 
     def eaten(self):
-        self.x = random.randint(0, WIN_W)
-        self.y = random.randint(0, WIN_H)
+        self.x = random.randint(0, WIN_W-0.5*self.width)
+        self.y = random.randint(0, WIN_H-0.5*self.height)
 
         self.spawn(SCREEN)
     
@@ -54,11 +54,18 @@ class Food():
 def main():
     snake = Snake(WIN_W/2, WIN_H/2)
     food = Food()
+    threshold = 0.75*snake.width
 
     running = True
     while running:
         SCREEN.fill((0,0,0))
-    
+
+        # Check if food eaten
+        if (abs(snake.x - food.x) < threshold) & (abs(snake.y - food.y) < threshold): 
+            food.eaten()
+            snake.eat()
+            print("EATEN")
+
         pygame.time.delay(100)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
