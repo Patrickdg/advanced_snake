@@ -5,7 +5,7 @@ import math
 
  
 """ TO-DO 
-- death scenarios (2): edge boundaries + eat self
+- death scenarios (2): pause screen, show message & score
 - GUI
 - Score system & display
 
@@ -114,12 +114,17 @@ def main():
                 elif event.key == pygame.K_UP and snake.dir != 'down':
                     snake.dir = 'up'
         
+        # Draw snake & food
         snake.draw(SCREEN)
         food.spawn(SCREEN)
         snake.move()
 
         # End scenarios - (1) Hit sides OR (2) hit self == pause snake, pause screen updates, display 'End' message,
         ## (1) Boundaries
+        out_of_bounds = (snake.x < 0) or (snake.x > WIN_W) or (snake.y < 0) or (snake.y > WIN_H)
+        ## (2) Check if crashed into self
+        if ([snake.x, snake.y] in snake.tail) or (out_of_bounds): 
+            running = False
         
         pygame.display.update()
     
