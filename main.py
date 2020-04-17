@@ -1,0 +1,87 @@
+import pygame
+import random 
+
+pygame.init()
+
+WIN_W = 500
+WIN_H = 500
+SCREEN = pygame.display.set_mode([WIN_W, WIN_H])
+pygame.display.set_caption("Snake")
+
+# Objects
+class Snake():
+    def __init__(self, x, y):
+        self.x = 50 
+        self.y = 50
+        self.width = 30
+        self.height = 30
+        self.length = 1
+        self.dir = 'down'
+
+    def move(self):
+        if self.dir == 'left':
+            self.x += -self.width
+        elif self.dir == 'right':
+            self.x += self.width
+        elif self.dir == 'up':
+            self.y += -self.height
+        elif self.dir == 'down':
+            self.y += self.height
+    
+    # def eat(self, tail): eat method will extend snake's body at the tail (last position in coordinate list)
+    ## Also add to self.length
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, (255,0,0), (self.x, self.y, self.width, self.height))
+
+class Food():
+    def __init__(self, x, y):
+        self.x = random.randint(0, WIN_W)
+        self.y = random.randint(0, WIN_H)
+        self.width = 30
+        self.height = 30
+    
+    def spawn(self, screen):
+        pygame.draw.rect(screen, (0,255,0), (self.x, self.y, self.width, self.height))
+
+    def eaten(self):
+        self.x = random.randint(0, WIN_W)
+        self.y = random.randint(0, WIN_H)
+        
+        self.spawn(SCREEN)
+    
+# Main Loop
+def main():
+    snake = Snake(WIN_W/2, WIN_H/2)
+
+    running = True
+    while running:
+        SCREEN.fill((0,0,0))
+    
+        pygame.time.delay(100)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        # Key input
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    snake.dir = 'left'
+                elif event.key == pygame.K_RIGHT:
+                    snake.dir = 'right'
+                elif event.key == pygame.K_DOWN:
+                    snake.dir = 'down'
+                elif event.key == pygame.K_UP:
+                    snake.dir = 'up'
+        
+        snake.draw(SCREEN)
+        snake.move()
+
+        # End scenarios - (1) Hit sides OR (2) hit self == pause snake, pause screen updates, display 'End' message,
+        ## (1) Boundaries
+        
+        pygame.display.update()
+    
+    pygame.quit()
+
+main()
