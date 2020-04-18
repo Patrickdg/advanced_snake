@@ -4,7 +4,6 @@ import thorpy
 import random
 import math 
 
- 
 """ TO-DO 
 - GUI
 
@@ -18,14 +17,17 @@ WIN_H = 750
 SCREEN = pygame.display.set_mode([WIN_W, WIN_H])
 pygame.display.set_caption("Snake")
 
+SIZE_W = 25
+SIZE_H = 25
+
 # OBJECTS
 def round_nearest(n, nearest):
     return int(nearest * round(float(n)/nearest))
 
 class Snake():
     def __init__(self, x, y):
-        self.width = 30
-        self.height = 30
+        self.width = SIZE_W
+        self.height = SIZE_H
         self.x = round_nearest(WIN_W/2, self.width)
         self.y = round_nearest(WIN_H/2, self.height)
         self.length = 1
@@ -60,13 +62,10 @@ class Snake():
             for tail in list(self.tail):
                 pygame.draw.rect(screen, (255,0,0), (tail[0], tail[1], self.width, self.height))
 
-def round_nearest(n, nearest):
-    return int(nearest * round(float(n)/nearest))
-
 class Food():
     def __init__(self):
-        self.width = 30
-        self.height = 30
+        self.width = SIZE_W
+        self.height = SIZE_H
         self.x = round_nearest(random.randint(0, WIN_W), self.width)
         self.y = round_nearest(random.randint(0, WIN_H), self.height)
     
