@@ -5,10 +5,17 @@ import random
 import math 
 
 """ TO-DO 
-o GUI
-o Increased difficulty feature: bombs & levels
+Features:
+o GUI: Menu, Score, Difficulty options, Color, background, Snake image, Game stats
+X Increased difficulty feature: bombs & levels
+X Increased difficulty feature: speed difficulty
+o Increased difficulty feature: progressive speed
 o Increased difficulty feature: efficient paths score system
-o Teleport mechanics
+X Teleport mechanics
+
+Bugs:
+o Spawn mechanics fix: food/bomb potential to spawn on/in front of snake 
+o Food spawning off-map (random int rounding)
 """
 
 # PARAMETERS
@@ -22,12 +29,14 @@ pygame.display.set_caption("Snake")
 SIZE_W = 25
 SIZE_H = 25
 
+SPEED_STAGES = {1: 200, 2: 150, 3: 100, 4: 75, 5: 40}
+
 # OBJECTS
 def round_nearest(n, nearest):
     return int(nearest * round(float(n)/nearest))
 
 class Snake():
-    def __init__(self, x, y):
+    def __init__(self, x, y, teleport):
         self.width = SIZE_W
         self.height = SIZE_H
         self.x = round_nearest(WIN_W/2, self.width)
@@ -35,6 +44,7 @@ class Snake():
         self.length = 1
         self.dir = 'down'
         self.tail = []
+        self.teleport = teleport
 
     # move head
     def move(self):
@@ -46,6 +56,17 @@ class Snake():
             self.y += -self.height
         elif self.dir == 'down':
             self.y += self.height
+        
+        # Teleport 
+        if self.teleport:
+            if self.x == WIN_W:
+                self.x = 0
+            elif self.x < 0: 
+                self.x = WIN_W
+            elif self.y == WIN_H:
+                self.y = 0
+            elif self.y < 0: 
+                self.y = WIN_H
     
     # move tail
     def move_tail(self):
@@ -57,12 +78,12 @@ class Snake():
         self.tail.insert(-1, [self.x, self.y])
 
     def draw(self, screen):
-            pygame.draw.rect(screen, (0,0,255), (self.x, self.y, self.width, self.height))
+            pygame.draw.rect(screen, (0,255,0), (self.x, self.y, self.width, self.height))
             if self.length > 1:
                 self.move_tail()
             print(self.tail)
             for tail in list(self.tail):
-                pygame.draw.rect(screen, (0,0,255), (tail[0], tail[1], self.width, self.height))
+                pygame.draw.rect(screen, (0,255,0), (tail[0], tail[1], self.width, self.height))
 
 class Food():
     def __init__(self):
@@ -80,14 +101,20 @@ class Food():
         self.x = round_nearest(random.randint(0, WIN_W), self.width)
         self.y = round_nearest(random.randint(0, WIN_H), self.height)
 
-        self.spawn(SCREEN, (0,255,0))
+        self.spawn(SCREEN, (0,0,255))
     
 # MAIN LOOP #
 def main():
+    # GAME OPTIONS
+    SPEED_DIFFICULTY = 4 #scale: Easy (1) - Insane (5)
+    TELEPORT_ON = True
+    BOMBS_ON = True
+
     # Declarations
-    snake = Snake(WIN_W/2, WIN_H/2)
+    snake = Snake(WIN_W/2, WIN_H/2, True if TELEPORT_ON else False)
     food = Food()
     bombs = []
+    speed = SPEED_STAGES[SPEED_DIFFICULTY]
 
     running = True
     while running:
@@ -97,7 +124,7 @@ def main():
         score = snake.length - 1
         score_disp = font.render(f"Score: {score}", 1, (255,255,255))
 
-        pygame.time.delay(100)
+        pygame.time.delay(speed)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -113,14 +140,15 @@ def main():
                 elif event.key == pygame.K_UP and snake.dir != 'down':
                     snake.dir = 'up'
         
-        # Draw score, snake & food
+        # Draw score, snake, food, bombs
         # Check if food eaten
         SCREEN.blit(score_disp, (250,10))
-        food.spawn(SCREEN, (0,255,0))
-        for bomb in bombs:
-            bomb.spawn(SCREEN, (255,0,0))
-            if [bomb.x, bomb.y] == [snake.x, snake.y]:
-                running = False
+        food.spawn(SCREEN, (0,0,255))
+        if BOMBS_ON:
+            for bomb in bombs:
+                bomb.spawn(SCREEN, (255,0,0))
+                if [bomb.x, bomb.y] == [snake.x, snake.y]:
+                    running = False
 
         if [food.x, food.y] == [snake.x, snake.y]: 
             food.eaten()
@@ -133,13 +161,16 @@ def main():
         
         # End scenarios - (1) Hit sides OR (2) hit self == pause snake, pause screen updates, display 'End' message,
         ## (1) Boundaries
-        out_of_bounds = (snake.x < 0) or (snake.x > WIN_W) or (snake.y < 0) or (snake.y > WIN_H)
+        if not TELEPORT_ON:
+            out_of_bounds = (snake.x < 0) or (snake.x > WIN_W) or (snake.y < 0) or (snake.y > WIN_H)
+        else:
+            out_of_bounds = False
         ## (2) Check if crashed into self
         if ([snake.x, snake.y] in snake.tail) or (out_of_bounds): 
             alive = False
         
         pygame.display.update()
-    print(f"Great job! Your score was {score} points.")
+    print(f"Great job! You got {score} points.")
     pygame.quit()
 
 main()
