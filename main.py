@@ -6,9 +6,15 @@ import random
 import math 
 
 """ TO-DO 
+Legend:
+o = To do
+- = In progress/partially complete
+x = Complete
+
 Features:
 o GUI: Menu, Score, Difficulty options, Color, background, Snake image, Game stats
-o Music & selection :) 
+x Music & selection
+- Sound effects: Moving snake (x), eating food (x), level landmarks (o)
 o Difficulty features: 
     x bombs & levels
     x speed difficulty
@@ -21,6 +27,7 @@ o Difficulty features:
 Bugs:
 o Spawn mechanics fix: food/bomb potential to spawn on/in front of snake 
 o Food spawning off-map (random int rounding)
+o Buffer zone for food & bomb spawn
 """
 
 # PARAMETERS
@@ -39,7 +46,10 @@ SPEED_STAGES = {1: 200, 2: 150, 3: 100, 4: 75, 5: 40}
 # SOUNDS 
 MUSIC_TRACKS = []
 for track in os.listdir('music'):
-    MUSIC_TRACKS.append("music/" + track)
+    MUSIC_TRACKS.append('music/' + track)
+SFX_TRACKS = []
+for fx in os.listdir('sfx'):
+    SFX_TRACKS.append(pygame.mixer.Sound('sfx/' + fx))
 
 # OBJECTS
 def round_nearest(n, nearest):
@@ -70,12 +80,16 @@ class Snake():
         # Teleport 
         if self.teleport:
             if self.x == WIN_W:
+                SFX_TRACKS[13].play()
                 self.x = 0
             elif self.x < 0: 
+                SFX_TRACKS[13].play()
                 self.x = WIN_W
             elif self.y == WIN_H:
+                SFX_TRACKS[13].play()
                 self.y = 0
             elif self.y < 0: 
+                SFX_TRACKS[13].play()
                 self.y = WIN_H
     
     # move tail
@@ -166,9 +180,12 @@ def main():
         if [food.x, food.y] == [snake.x, snake.y]: 
             food.eaten()
             snake.eat()
+            SFX_TRACKS[random.choice([9, 12])].play()
+            SFX_TRACKS[score].play()
+            SFX_TRACKS[10].play()
             for level in range(0, score+1):
                 bombs.append(Food())
-        
+
         snake.draw(SCREEN)
         snake.move()
         
