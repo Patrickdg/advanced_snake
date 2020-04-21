@@ -1,4 +1,5 @@
 # LIBRARIES 
+import os
 import pygame
 import thorpy
 import random
@@ -7,11 +8,15 @@ import math
 """ TO-DO 
 Features:
 o GUI: Menu, Score, Difficulty options, Color, background, Snake image, Game stats
-X Increased difficulty feature: bombs & levels
-X Increased difficulty feature: speed difficulty
-o Increased difficulty feature: progressive speed
-o Increased difficulty feature: efficient paths score system
-X Teleport mechanics
+o Music & selection :) 
+o Difficulty features: 
+    x bombs & levels
+    x speed difficulty
+    o progressive speed
+    o colored food & required course order
+    o colored food & map blindness (memorization)
+    o food respawn timer
+    x Teleport mechanics
 
 Bugs:
 o Spawn mechanics fix: food/bomb potential to spawn on/in front of snake 
@@ -30,6 +35,11 @@ SIZE_W = 25
 SIZE_H = 25
 
 SPEED_STAGES = {1: 200, 2: 150, 3: 100, 4: 75, 5: 40}
+
+# SOUNDS 
+MUSIC_TRACKS = []
+for track in os.listdir('music'):
+    MUSIC_TRACKS.append("music/" + track)
 
 # OBJECTS
 def round_nearest(n, nearest):
@@ -81,7 +91,6 @@ class Snake():
             pygame.draw.rect(screen, (0,255,0), (self.x, self.y, self.width, self.height))
             if self.length > 1:
                 self.move_tail()
-            print(self.tail)
             for tail in list(self.tail):
                 pygame.draw.rect(screen, (0,255,0), (tail[0], tail[1], self.width, self.height))
 
@@ -102,11 +111,12 @@ class Food():
         self.y = round_nearest(random.randint(0, WIN_H), self.height)
 
         self.spawn(SCREEN, (0,0,255))
+        print(self.x, self.y)
     
 # MAIN LOOP #
 def main():
     # GAME OPTIONS
-    SPEED_DIFFICULTY = 4 #scale: Easy (1) - Insane (5)
+    SPEED_DIFFICULTY = 3 #scale: 1 (Easy) to 5 (Impossible)
     TELEPORT_ON = True
     BOMBS_ON = True
 
@@ -115,6 +125,9 @@ def main():
     food = Food()
     bombs = []
     speed = SPEED_STAGES[SPEED_DIFFICULTY]
+    # music_track = MUSIC_TRACKS[SPEED_DIFFICULTY-1]
+    pygame.mixer.music.load(MUSIC_TRACKS[SPEED_DIFFICULTY-1])
+    pygame.mixer.music.play(-1)
 
     running = True
     while running:
