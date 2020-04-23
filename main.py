@@ -15,18 +15,17 @@ Features:
 o GUI: Menu, Score, Difficulty options, Color, background, Snake image, Game stats
 x Music & selection
 - Sound effects: Moving snake (x), eating food (x), level landmarks (o)
-o Difficulty features: 
+- Difficulty features: 
+    x teleport mechanics
     x bombs & levels
     x speed difficulty
     o progressive speed
     o colored food & required course order
     o colored food & map blindness (memorization)
     o food respawn timer
-    x Teleport mechanics
 
 Bugs:
-o Spawn mechanics fix: food/bomb potential to spawn on/in front of snake 
-o Food spawning off-map (random int rounding)
+o Food spawning off-map & inside bombs (random int rounding)
 o Buffer zone for food & bomb spawn
 """
 
@@ -112,8 +111,8 @@ class Food():
     def __init__(self):
         self.width = SIZE_W
         self.height = SIZE_H
-        self.x = round_nearest(random.randint(0, WIN_W), self.width)
-        self.y = round_nearest(random.randint(0, WIN_H), self.height)
+        self.x = round_nearest(random.randint(0, WIN_W-SIZE_W), self.width)
+        self.y = round_nearest(random.randint(0, WIN_H-SIZE_H), self.height)
 
     def spawn(self, screen, color):
         pygame.draw.rect(screen, color, (round_nearest(self.x, self.width),
@@ -121,8 +120,8 @@ class Food():
                                              self.width, self.height))
 
     def eaten(self):
-        self.x = round_nearest(random.randint(0, WIN_W), self.width)
-        self.y = round_nearest(random.randint(0, WIN_H), self.height)
+        self.x = round_nearest(random.randint(0, WIN_W-SIZE_W), self.width)
+        self.y = round_nearest(random.randint(0, WIN_H-SIZE_H), self.height)
 
         self.spawn(SCREEN, (0,0,255))
         print(self.x, self.y)
@@ -130,7 +129,7 @@ class Food():
 # MAIN LOOP #
 def main():
     # GAME OPTIONS
-    SPEED_DIFFICULTY = 3 #scale: 1 (Easy) to 5 (Impossible)
+    SPEED_DIFFICULTY = 4 #scale: 1 (Easy) to 5 (Impossible)
     TELEPORT_ON = True
     BOMBS_ON = True
 
@@ -181,7 +180,8 @@ def main():
             food.eaten()
             snake.eat()
             SFX_TRACKS[random.choice([9, 12])].play()
-            SFX_TRACKS[score].play()
+            if score < 10:
+                SFX_TRACKS[score].play()
             SFX_TRACKS[10].play()
             for level in range(0, score+1):
                 bombs.append(Food())
