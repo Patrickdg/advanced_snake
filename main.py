@@ -14,19 +14,20 @@ x = Complete
 Features:
 o GUI: Menu, Score, Difficulty options, Color, background, Snake image, Game stats
 x Music & selection
-- Sound effects: Moving snake (x), eating food (x), level landmarks (o)
+x Sound effects: Moving snake (x), eating food (x), level landmarks (x)
 - Difficulty features: 
     x teleport mechanics
     x bombs & levels
     x speed difficulty
-    o progressive speed
     o colored food & required course order
-    o colored food & map blindness (memorization)
+    o memorization & map blindness
     o food respawn timer
 
 Bugs:
-o Food spawning off-map & inside bombs (random int rounding)
+x Food spawning off-map (random int rounding)
+o Food spawning inside bombs 
 o Buffer zone for food & bomb spawn
+o Snake body crash mechanics
 """
 
 # PARAMETERS
